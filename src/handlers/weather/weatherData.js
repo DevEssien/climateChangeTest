@@ -118,20 +118,16 @@ exports.createWeatherData = async (req, res, next) => {
 
 
 exports.updateWeatherData = async (req, res, next) => {
-    const { climate, area_code, temperature, humidity, chances_of_rain} = req.body
+    const reqObject = req.body
     try {
         const data = await Weather.findById(req.params?._id);
         if (!data) return next(new AppError('Weather data do not exist', 404));
 
-        const dataUpdate = {
-            climate: climate, 
-            area_code: area_code, 
-            temperature: temperature, 
-            humidity: humidity, 
-            chances_of_rain: chances_of_rain
+        for (const field in reqObject) {
+            data[field]  = reqObject[`${field}`]
         }
 
-        const updatedData = await Weather.updateOne({ _id: req.params._id}, dataUpdate);
+        const updatedData = await data.save()
         
         if (!updatedData) return next(new AppError('Could not update the record', 500));
 
